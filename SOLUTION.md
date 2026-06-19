@@ -55,7 +55,12 @@ question + options
                            "unit-swap" distractors (e.g. 22.8 mi vs 36.7 mi)
         │
         ▼
-8. Validate & export       Apexmind_submission.csv  (question_no, answer)
+8. Unknown post-pass       for negation questions ("which is NOT ..."), answer
+                           Unknown when the evidence shows every option is valid
+                           and so none is the exception
+        │
+        ▼
+9. Validate & export       Apexmind_submission.csv  (question_no, answer)
 ```
 
 **Why Wikipedia-first?** The question set is sourced from Wikipedia articles, so
@@ -77,8 +82,8 @@ ollama pull qwen2.5:3b
 # 3. Run the full pipeline (writes Apexmind_submission.csv)
 python3 starter_code/run.py
 
-# 4. Apply the numeric/unit disambiguation post-pass
-cd starter_code && python3 numeric_pass.py && cd ..
+# 4. Apply the post-passes (numeric/unit disambiguation, then Unknown detection)
+cd starter_code && python3 numeric_pass.py && python3 unknown_pass.py && cd ..
 
 # Optional: quick test on the first 5 questions
 python3 starter_code/run.py --limit 5
@@ -108,6 +113,7 @@ Outputs:
 |---|---|
 | `starter_code/run.py` | Main pipeline (retrieval → rank → RAG → answer + tie-breaker → export) |
 | `starter_code/numeric_pass.py` | Numeric/unit disambiguation post-pass |
+| `starter_code/unknown_pass.py` | Unknown detection for negation/"none-applies" questions |
 | `starter_code/run.ipynb` | Colab notebook (Ollama or transformers backend) |
 | `Apexmind_submission.csv` | **Final answer file** |
 | `run_log.jsonl` | Per-question log (answer, source, primary/tie-break/heuristic votes) |
