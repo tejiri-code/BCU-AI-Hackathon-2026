@@ -5,6 +5,7 @@ questions using only **open models ≤ 8B parameters**, served locally via llama
 
 > **Final answer file:** [`ApexMind_submission.csv`](ApexMind_submission.csv) — 100 rows, `question_no,answer`.
 > **One-notebook walkthrough:** [`src/run.ipynb`](src/run.ipynb).
+> **Slides:** [`slides/ApexMind-BCU-AI-Hackathon-2026.pptx`](slides/ApexMind-BCU-AI-Hackathon-2026.pptx).
 
 ---
 
