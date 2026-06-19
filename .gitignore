@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual env
+.venv/
+venv/
+
+# Models (large; not committed — fetch via scripts/fetch_models.py)
+models/
+
+# Caches and run artifacts
+cache/
+outputs/runs/
+
+# OS / editor
+.DS_Store
+Thumbs.db

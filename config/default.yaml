@@ -1,0 +1,65 @@
+# ApexMind pipeline configuration. Paths are relative to the repo root.
+team_name: ApexMind
+
+paths:
+  questions: questions_100.csv
+  output: ApexMind_submission.csv
+  gold: data/gold_dev.csv
+  cache_dir: cache
+  models_dir: models
+  runs_dir: outputs/runs
+
+# Evaluation settings.
+evaluation:
+  confidence_threshold: 0.6   # "high-confidence" cutoff used in ablation reporting
+  gold_template_size: 20      # questions seeded into the gold template when created
+
+# Prebuilt llama.cpp server (OpenAI-compatible API).
+llama:
+  server_bin: C:\Users\nwagb\Desktop\thesis\tools\llamacpp\bin\llama-server.exe
+  host: 127.0.0.1
+  n_gpu_layers: 99      # offload all layers to the RTX 4060
+  startup_timeout_s: 240
+
+# Model registry (all files live in models/, all <= 8B params).
+models:
+  primary:
+    file: Qwen3-8B-Q4_K_M.gguf
+    params_b: 8.0
+    port: 8081
+    ctx: 8192
+  voter_a:
+    file: Qwen3-4B-Instruct-2507-Q4_K_M.gguf
+    params_b: 4.0
+    port: 8082
+    ctx: 8192
+  voter_b:
+    file: Qwen3.5-4B-Q4_K_M.gguf
+    params_b: 4.0
+    port: 8083
+    ctx: 8192
+  embedding:
+    file: Qwen3-Embedding-0.6B-f16.gguf
+    params_b: 0.6
+    port: 8090
+    ctx: 2048
+  reranker:
+    file: bge-reranker-v2-m3-Q8_0.gguf
+    params_b: 0.6
+    port: 8091
+    ctx: 2048
+
+# Generation settings.
+generation:
+  temperature: 0.0       # deterministic primary pass
+  max_tokens: 512
+  seed: 1234
+  disable_thinking: true # Qwen3 hybrid -> /no_think for speed + determinism
+
+# Retrieval settings.
+retrieval:
+  wikipedia_articles: 3
+  wikipedia_chars: 2400  # per-article extract budget
+  web_results: 4
+  enable_web: true
+  evidence_char_budget: 4000

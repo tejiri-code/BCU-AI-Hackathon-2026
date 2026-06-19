@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apexmind"
+version = "0.1.0"
+description = "ApexMind — BCU AI Hackathon 2026 MCQ QA pipeline (<=8B, RAG + ensemble)"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0",
+    "openpyxl>=3.1",
+    "requests>=2.31",
+    "ddgs>=9.0",
+    "pyyaml>=6.0",
+    "tenacity>=8.2",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+slides = ["python-pptx>=0.6"]
+
+[project.scripts]
+apexmind = "apexmind.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
