@@ -1,12 +1,17 @@
-# Core packages
-pandas
-openpyxl
-ddgs
+# Core dependencies for VeriQuest AI
+ddgs          # DuckDuckGo web search used for evidence retrieval
+requests      # HTTP client used to call the local Ollama LLM API
+tqdm          # progress bar while answering the 100 questions
 
-# Optional packages for internet search and LLM use
-# duckduckgo-search
-# transformers
-# accelerate
-# torch
-# sentence-transformers
-# ollama
+# Notes:
+# - Question/answer CSV I/O uses Python's built-in `csv` module - no pandas or
+#   numpy required. This keeps the pipeline lightweight and avoids build
+#   failures on newer/pre-release Python versions (numpy currently fails to
+#   compile from source on Python 3.15 alpha, for example).
+# - Evidence ranking and option scoring use deterministic keyword/phrase
+#   overlap (pure Python), not scikit-learn/embeddings - this keeps the
+#   pipeline fast, dependency-light, and easy to explain in the presentation.
+# - The answering LLM runs locally through Ollama (https://ollama.com) and is
+#   NOT a Python package. Install Ollama separately, then pull a <=8B model:
+#     ollama pull llama3.1:8b
+#     ollama pull qwen2.5:7b-instruct   (alternative)
