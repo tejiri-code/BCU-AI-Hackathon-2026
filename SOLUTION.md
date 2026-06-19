@@ -7,10 +7,11 @@ answers the 100 multiple-choice questions.
 
 | | |
 |---|---|
-| **Answering LLM** | `qwen2.5:7b` (Qwen2.5 7B Instruct) |
-| **Parameters** | 7 billion — **within the ≤ 8B rule** |
+| **Primary answering LLM** | `qwen2.5:7b` (Qwen2.5 7B Instruct) — 7B params |
+| **Tie-breaker LLM** | `qwen2.5:3b` (3B params) — second opinion on disagreements |
+| **Parameters** | both **within the ≤ 8B rule** |
 | **Runtime** | [Ollama](https://ollama.com) (local, no cloud API) |
-| **Embeddings / ranking** | BM25 (`rank-bm25`) — no neural model needed |
+| **Retrieval / ranking** | Wikipedia API + BM25 (`rank-bm25`) — no neural model needed |
 
 No closed-source or cloud LLM is used to produce answers, so the submission is
 fully reproducible on a laptop.
@@ -21,30 +22,40 @@ fully reproducible on a laptop.
 question + options
         │
         ▼
-1. Query construction      natural-language question  +  keyword-only query
+1. Query construction      multiple queries: the natural-language question, a
+                           keyword-only query, AND option-aware queries built
+                           from entities found in the answer options (the key
+                           entity is often named only in the options)
         │
         ▼
-2. Retrieval (Wikipedia)   MediaWiki API: search → intro extracts for top hits
-                           + full article text for the 2 best-matching articles
-                           (DuckDuckGo fallback if Wikipedia returns too little)
+2. Retrieval (Wikipedia)   MediaWiki API: search each query, collect candidate
+                           titles round-robin (each query's best hit survives) →
+                           intro extracts for all + full article text for the
+                           top-3 hits. DuckDuckGo fallback if Wikipedia is thin.
         │
         ▼
-3. Passage ranking         split into paragraphs → BM25 vs (question+options)
-                           + title-match boost (favour the article whose title
-                           echoes the question entity)
+3. Passage ranking         split into paragraphs (capped per article) → BM25 vs
+                           (question+options) + title-match boost (favour the
+                           article whose title echoes the question entity)
         │
         ▼
-4. RAG prompt              question + options + top-7 passages
+4. RAG prompt              question + options + top-7 passages (temperature 0)
         │
         ▼
-5. LLM answer              qwen2.5:7b → single letter A–E (temperature 0)
+5. LLM answer              qwen2.5:7b → single letter A–E
         │
         ▼
-6. Fallback                if the model abstains, pick the option whose words
-                           best overlap the retrieved evidence
+6. Tie-breaker             if the 7B answer disagrees with the evidence-overlap
+                           heuristic, qwen2.5:3b votes; it overrides only when it
+                           AND the heuristic agree against the 7B (2-vs-1)
         │
         ▼
-7. Validate & export       Apexmind_submission.csv  (question_no, answer)
+7. Numeric post-pass       for number/unit questions, match each option's
+                           (number, unit) pairs against the evidence; fix
+                           "unit-swap" distractors (e.g. 22.8 mi vs 36.7 mi)
+        │
+        ▼
+8. Validate & export       Apexmind_submission.csv  (question_no, answer)
 ```
 
 **Why Wikipedia-first?** The question set is sourced from Wikipedia articles, so
@@ -60,11 +71,15 @@ Requirements: Python 3.10+, [Ollama](https://ollama.com) installed and running.
 python3 -m pip install -r starter_code/requirements.txt
 python3 -m pip install ddgs rank-bm25
 
-# 2. Pull the model (~4.7 GB)
+# 2. Pull the models (~4.7 GB + ~1.9 GB)
 ollama pull qwen2.5:7b
+ollama pull qwen2.5:3b
 
 # 3. Run the full pipeline (writes Apexmind_submission.csv)
 python3 src/run.py
+
+# 4. Apply the numeric/unit disambiguation post-pass
+cd src && python3 numeric_pass.py && cd ..
 
 # Optional: quick test on the first 5 questions
 python3 src/run.py --limit 5
@@ -88,7 +103,10 @@ Outputs:
 
 | Path | Purpose |
 |---|---|
-| `src/run.py` | The complete pipeline (retrieval → rank → RAG → answer → export) |
-| `Apexmind_submission.csv` | Final answer file |
-| `run_log.jsonl` | Per-question reasoning log |
-| `slides/` | Presentation |
+| `src/run.py` | Main pipeline (retrieval → rank → RAG → answer + tie-breaker → export) |
+| `src/numeric_pass.py` | Numeric/unit disambiguation post-pass |
+| `Apexmind_submission.csv` | **Final answer file** |
+| `run_log.jsonl` | Per-question log (answer, source, primary/tie-break/heuristic votes) |
+| `numeric_corrections.log` | Overrides applied by the numeric post-pass |
+| `slides/make_slides.py` | Builds the 3-slide PPTX presentation |
+| `slides/Apexmind_presentation.pptx` | Presentation |

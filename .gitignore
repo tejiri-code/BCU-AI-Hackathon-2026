@@ -1,1 +1,4 @@
-make_slides.py 
+__pycache__/
+*.pyc
+evidence_cache.json 
+make_slides.py
