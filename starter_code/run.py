@@ -107,7 +107,29 @@ def load_questions(path: Path) -> pd.DataFrame:
     missing = required - set(questions.columns)
     if missing:
         raise ValueError(f"Missing required columns: {sorted(missing)}")
+
+    # The source CSV contains mojibake (UTF-8 text mis-decoded as Latin-1/CP1252),
+    # e.g. "Le prophÃ¨te" instead of "Le prophète". This wrecks Wikipedia
+    # retrieval for the ~14 affected questions, so repair it on load.
+    for col in ("question", "A", "B", "C", "D", "E"):
+        if col in questions.columns:
+            questions[col] = questions[col].map(fix_mojibake)
     return questions
+
+
+def fix_mojibake(value):
+    """Repair double-encoded text. Uses ftfy when available, else a latin-1
+    round-trip fallback."""
+    if not isinstance(value, str):
+        return value
+    try:
+        import ftfy
+        return ftfy.fix_text(value)
+    except ImportError:
+        try:
+            return value.encode("latin-1").decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            return value
 
 
 # -----------------------------

@@ -4,6 +4,7 @@ openpyxl
 requests
 rank-bm25
 ddgs
+ftfy
 
 # LLM backend
 # Local (default): Ollama  -> https://ollama.com  (then: ollama pull qwen2.5:7b qwen2.5:3b)
