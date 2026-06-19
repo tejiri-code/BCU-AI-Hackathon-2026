@@ -1,12 +1,16 @@
-# Core packages
+# Core pipeline packages
 pandas
 openpyxl
+requests
+rank-bm25
 ddgs
 
-# Optional packages for internet search and LLM use
-# duckduckgo-search
-# transformers
+# LLM backend
+# Local (default): Ollama  -> https://ollama.com  (then: ollama pull qwen2.5:7b qwen2.5:3b)
+# Colab / no Ollama: the pipeline falls back to Hugging Face transformers:
+# transformers>=4.44
 # accelerate
 # torch
-# sentence-transformers
-# ollama
+
+# For (re)building the slides:
+# python-pptx

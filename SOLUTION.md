@@ -69,21 +69,24 @@ Requirements: Python 3.10+, [Ollama](https://ollama.com) installed and running.
 ```bash
 # 1. Install Python deps
 python3 -m pip install -r starter_code/requirements.txt
-python3 -m pip install ddgs rank-bm25
 
 # 2. Pull the models (~4.7 GB + ~1.9 GB)
 ollama pull qwen2.5:7b
 ollama pull qwen2.5:3b
 
 # 3. Run the full pipeline (writes Apexmind_submission.csv)
-python3 src/run.py
+python3 starter_code/run.py
 
 # 4. Apply the numeric/unit disambiguation post-pass
-cd src && python3 numeric_pass.py && cd ..
+cd starter_code && python3 numeric_pass.py && cd ..
 
 # Optional: quick test on the first 5 questions
-python3 src/run.py --limit 5
+python3 starter_code/run.py --limit 5
 ```
+
+> No Ollama? The pipeline auto-detects and falls back to Hugging Face
+> `transformers` (e.g. on a Colab GPU). `starter_code/run.ipynb` is a ready-to-run
+> Colab notebook covering both backends.
 
 Outputs:
 - `Apexmind_submission.csv` — final answers (100 rows, `question_no,answer`)
@@ -103,8 +106,9 @@ Outputs:
 
 | Path | Purpose |
 |---|---|
-| `src/run.py` | Main pipeline (retrieval → rank → RAG → answer + tie-breaker → export) |
-| `src/numeric_pass.py` | Numeric/unit disambiguation post-pass |
+| `starter_code/run.py` | Main pipeline (retrieval → rank → RAG → answer + tie-breaker → export) |
+| `starter_code/numeric_pass.py` | Numeric/unit disambiguation post-pass |
+| `starter_code/run.ipynb` | Colab notebook (Ollama or transformers backend) |
 | `Apexmind_submission.csv` | **Final answer file** |
 | `run_log.jsonl` | Per-question log (answer, source, primary/tie-break/heuristic votes) |
 | `numeric_corrections.log` | Overrides applied by the numeric post-pass |
