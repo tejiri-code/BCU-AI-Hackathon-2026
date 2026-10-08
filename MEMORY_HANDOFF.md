@@ -1,7 +1,7 @@
 # ApexMind — Memory & Handoff
 
-> Single-file handoff so any teammate (or a fresh Claude account) can continue this hackathon
-> work with full context. Mirrors the agent's persistent memory. Date: **2026-06-19**.
+> Single-file handoff so any teammate can continue this hackathon work with full context.
+> Date: **2026-06-19**.
 
 ---
 
